@@ -70,9 +70,14 @@ def readStatsFile(statsFile):
     ignores = re.compile(r'^---|^$')
     statLine = re.compile(r'([a-zA-Z0-9_\.:-]+)\s+([-+]?[0-9]+\.[0-9]+|[-+]?[0-9]+|nan|inf)')
     count = 0 
+    stat_time = 0
     for line in F:
         #ignore empty lines and lines starting with "---"  
-        if not ignores.match(line):
+        if ignores.match(line):
+            stat_time = stat_time + 1
+            if stat_time is 3:
+                break
+        else:
             count += 1
             statKind = statLine.match(line).group(1)
             statValue = statLine.match(line).group(2)
@@ -124,11 +129,11 @@ def prepareTemplate(outputFile):
         temp = child.attrib.get('value')
 
         # to consider all the cpus in total cycle calculation
-        if isinstance(temp, basestring) and "cpu." in temp and temp.split('.')[0] == "stats":
-            value = "(" + temp.replace("cpu.", "cpu0.") + ")"
-            for i in range(1, numCores):
-                value = value + " + (" + temp.replace("cpu.", "cpu"+str(i)+".") +")"
-            child.attrib['value'] = value
+        # if isinstance(temp, basestring) and "cpu." in temp and temp.split('.')[0] == "stats":
+        #     value = "(" + temp.replace("cpu.", "cpu0.") + ")"
+        #     for i in range(1, numCores):
+        #         value = value + " + (" + temp.replace("cpu.", "cpu"+str(i)+".") +")"
+        #     child.attrib['value'] = value
 
         # remove a core template element and replace it with number of cores template elements
         if child.attrib.get("name") == "core":
@@ -148,15 +153,19 @@ def prepareTemplate(outputFile):
                             childValue = "0"
                     if isinstance(childId, basestring) and "core" in childId:
                         childId = childId.replace("core", "core" + str(coreCounter))
-                    if isinstance(childValue, basestring) and "cpu." in childValue and "stats" in childValue.split('.')[0]:
-                        childValue = childValue.replace("cpu." , "cpu" + str(coreCounter)+ ".")
+
+                    # if isinstance(childValue, basestring) and "cpu." in childValue and "stats" in childValue.split('.')[0]:
+                    #     childValue = childValue.replace("cpu." , "cpu" + str(coreCounter)+ ".")
+
                     if isinstance(childValue, basestring) and "cpu." in childValue and "config" in childValue.split('.')[0]:
                         childValue = childValue.replace("cpu." , "cpu." + str(coreCounter)+ ".")
                     if len(list(coreChild)) is not 0:
                         for level2Child in coreChild:
                             level2ChildValue = level2Child.attrib.get("value")
-                            if isinstance(level2ChildValue, basestring) and "cpu." in level2ChildValue and "stats" in level2ChildValue.split('.')[0]:
-                                level2ChildValue = level2ChildValue.replace("cpu." , "cpu" + str(coreCounter)+ ".")
+
+                            # if isinstance(level2ChildValue, basestring) and "cpu." in level2ChildValue and "stats" in level2ChildValue.split('.')[0]:
+                            #     level2ChildValue = level2ChildValue.replace("cpu." , "cpu" + str(coreCounter)+ ".")
+
                             if isinstance(level2ChildValue, basestring) and "cpu." in level2ChildValue and "config" in level2ChildValue.split('.')[0]:
                                 level2ChildValue = level2ChildValue.replace("cpu." , "cpu." + str(coreCounter)+ ".")
                             level2Child.attrib["value"] = level2ChildValue
@@ -244,11 +253,12 @@ def getConfValue(confStr):
 def dumpMcpatOut(outFile):
     rootElem = templateMcpat.getroot()
     configMatch = re.compile(r'config\.([][a-zA-Z0-9_:\.]+)')
-    #replace params with values from the GEM5 config file 
+    line_num = 0
     for param in rootElem.iter('param'):
         name = param.attrib['name']
         value = param.attrib['value']
         if 'config' in value:
+            line_num = line_num +1
             allConfs = configMatch.findall(value)
             for conf in allConfs:
                 confValue = getConfValue(conf)
