@@ -42,9 +42,9 @@
     <param name="virtual_memory_page_size" value="4096"/>
     <!-- address width determines the tag_width in Cache, LSQ and buffers in cache controller 
       default value is machine_bits, if not set -->
-    <stat name="total_cycles" value="stats.system.cpu.numCycles"/>
-    <stat name="idle_cycles" value="stats.system.cpu.idleCycles"/>
-    <stat name="busy_cycles" value="stats.system.cpu.numCycles - stats.system.cpu.idleCycles"/>
+    <stat name="total_cycles" value="stats.system.switch_cpus.numCycles"/>
+    <stat name="idle_cycles" value="stats.system.switch_cpus.idleCycles"/>
+    <stat name="busy_cycles" value="stats.system.switch_cpus.numCycles - stats.system.switch_cpus.idleCycles"/>
     <!--This page size(B) is complete different from the page size in Main memo section. this page size is the size of 
       virtual memory from OS/Archi perspective; the page size in Main memo section is the actual physical line in a DRAM bank  -->
     <!-- *********************** cores ******************* -->
@@ -63,21 +63,21 @@
       <param name="micro_opcode_width" value="8"/>
       <param name="machine_type" value="0"/>
       <!-- inorder/OoO; 1 inorder; 0 OOO-->
-      <param name="number_hardware_threads" value="config.system.cpu.numThreads"/>
+      <param name="number_hardware_threads" value="config.system.switch_cpus.numThreads"/>
       <!-- number_instruction_fetch_ports(icache ports) is always 1 in single-thread processor,
       it only may be more than one in SMT processors. BTB ports always equals to fetch ports since 
       branch information in consecutive branch instructions in the same fetch group can be read out from BTB once.-->
-      <param name="fetch_width" value="config.system.cpu.fetchWidth"/>
+      <param name="fetch_width" value="config.system.switch_cpus.fetchWidth"/>
       <!-- fetch_width determines the size of cachelines of L1 cache block -->
       <param name="number_instruction_fetch_ports" value="1"/>
-      <param name="decode_width" value="config.system.cpu.decodeWidth"/>
+      <param name="decode_width" value="config.system.switch_cpus.decodeWidth"/>
       <!-- decode_width determines the number of ports of the 
       renaming table (both RAM and CAM) scheme -->
-      <param name="issue_width" value="config.system.cpu.issueWidth"/>
-      <param name="peak_issue_width" value="config.system.cpu.issueWidth"/>
+      <param name="issue_width" value="config.system.switch_cpus.issueWidth"/>
+      <param name="peak_issue_width" value="config.system.switch_cpus.issueWidth"/>
       <!-- issue_width determines the number of ports of Issue window and other logic 
       as in the complexity effective processors paper; issue_width==dispatch_width -->
-      <param name="commit_width" value="config.system.cpu.commitWidth"/>
+      <param name="commit_width" value="config.system.switch_cpus.commitWidth"/>
       <!-- commit_width determines the number of ports of register files -->
       <param name="fp_issue_width" value="2"/>
       <param name="prediction_width" value="1"/>
@@ -101,10 +101,10 @@
       <param name="instruction_window_scheme" value="0"/>
       <!-- 0 PHYREG based, 1 RSBASED-->
       <!-- McPAT support 2 types of OoO cores, RS based and physical reg based-->
-      <param name="instruction_window_size" value="config.system.cpu.numIQEntries"/>
-      <param name="fp_instruction_window_size" value="config.system.cpu.numIQEntries"/>
+      <param name="instruction_window_size" value="config.system.switch_cpus.numIQEntries"/>
+      <param name="fp_instruction_window_size" value="config.system.switch_cpus.numIQEntries"/>
       <!-- the instruction issue Q as in Alpha 21264; The RS as in Intel P6 -->
-      <param name="ROB_size" value="config.system.cpu.numROBEntries"/>
+      <param name="ROB_size" value="config.system.switch_cpus.numROBEntries"/>
       <!-- each in-flight instruction has an entry in ROB -->
       <!-- registers -->
       <param name="archi_Regs_IRF_size" value="16"/>
@@ -113,8 +113,8 @@
       <!-- MMX + XMM -->
       <!--  if OoO processor, phy_reg number is needed for renaming logic, 
       renaming logic is for both integer and floating point insts.  -->
-      <param name="phy_Regs_IRF_size" value="config.system.cpu.numPhysIntRegs"/>
-      <param name="phy_Regs_FRF_size" value="config.system.cpu.numPhysFloatRegs"/>
+      <param name="phy_Regs_IRF_size" value="config.system.switch_cpus.numPhysIntRegs"/>
+      <param name="phy_Regs_FRF_size" value="config.system.switch_cpus.numPhysFloatRegs"/>
       <!-- rename logic -->
       <param name="rename_scheme" value="0"/>
       <!-- can be RAM based(0) or CAM based(1) rename scheme 
@@ -128,68 +128,68 @@
       <!-- In OoO cores, loads and stores can be issued whether inorder(Pentium Pro) or (OoO)out-of-order(Alpha),
       They will always try to execute out-of-order though. -->
       <param name="LSU_order" value="inorder"/>
-      <param name="store_buffer_size" value="config.system.cpu.SQEntries"/>
+      <param name="store_buffer_size" value="config.system.switch_cpus.SQEntries"/>
       <!-- By default, in-order cores do not have load buffers -->
-      <param name="load_buffer_size" value="config.system.cpu.LQEntries"/>
+      <param name="load_buffer_size" value="config.system.switch_cpus.LQEntries"/>
       <!-- number of ports refer to sustain-able concurrent memory accesses -->
       <param name="memory_ports" value="2"/>
       <!-- max_allowed_in_flight_memo_instructions determines the # of ports of load and store buffer
       as well as the ports of Dcache which is connected to LSU -->
       <!-- dual-pumped Dcache can be used to save the extra read/write ports -->
-      <param name="RAS_size" value="config.system.cpu.branchPred.RASSize"/>
+      <param name="RAS_size" value="config.system.switch_cpus.branchPred.RASSize"/>
       <!-- general stats, defines simulation periods;require total, idle, and busy cycles for sanity check  -->
       <!-- please note: if target architecture is X86, then all the instructions refer to (fused) micro-ops -->
-      <stat name="total_instructions" value="stats.system.cpu.instsIssued"/>
-      <stat name="int_instructions" value="stats.system.cpu.statIssuedInstType_0::No_OpClass  + stats.system.cpu.statIssuedInstType_0::IntAlu +	stats.system.cpu.statIssuedInstType_0::IntMult + stats.system.cpu.statIssuedInstType_0::IntDiv + stats.system.cpu.statIssuedInstType_0::IprAccess"/>
-      <stat name="fp_instructions" value="stats.system.cpu.statIssuedInstType_0::FloatAdd + stats.system.cpu.statIssuedInstType_0::FloatCmp + stats.system.cpu.statIssuedInstType_0::FloatCvt + stats.system.cpu.statIssuedInstType_0::FloatMult + stats.system.cpu.statIssuedInstType_0::FloatDiv + stats.system.cpu.statIssuedInstType_0::FloatSqrt"/>
-      <stat name="branch_instructions" value="stats.system.cpu.branchPred.condPredicted"/>
-      <stat name="branch_mispredictions" value="stats.system.cpu.branchPred.condIncorrect"/>
-      <stat name="load_instructions" value="system.cpu.commitStats0.numLoadInsts"/>
-      <stat name="store_instructions" value="stats.system.cpu.commitStats0.numStoreInsts"/>
-      <stat name="committed_instructions" value="stats.system.cpu.commitStats0.numInsts"/>
-      <stat name="committed_int_instructions" value="stats.system.cpu.commitStats0.numIntInsts"/>
-      <stat name="committed_fp_instructions" value="system.cpu.commitStats0.numFpInsts"/>
+      <stat name="total_instructions" value="stats.system.switch_cpus.instsIssued"/>
+      <stat name="int_instructions" value="stats.system.switch_cpus.statIssuedInstType_0::No_OpClass  + stats.system.switch_cpus.statIssuedInstType_0::IntAlu +	stats.system.switch_cpus.statIssuedInstType_0::IntMult + stats.system.switch_cpus.statIssuedInstType_0::IntDiv + stats.system.switch_cpus.statIssuedInstType_0::IprAccess"/>
+      <stat name="fp_instructions" value="stats.system.switch_cpus.statIssuedInstType_0::FloatAdd + stats.system.switch_cpus.statIssuedInstType_0::FloatCmp + stats.system.switch_cpus.statIssuedInstType_0::FloatCvt + stats.system.switch_cpus.statIssuedInstType_0::FloatMult + stats.system.switch_cpus.statIssuedInstType_0::FloatDiv + stats.system.switch_cpus.statIssuedInstType_0::FloatSqrt"/>
+      <stat name="branch_instructions" value="stats.system.switch_cpus.branchPred.condPredicted"/>
+      <stat name="branch_mispredictions" value="stats.system.switch_cpus.branchPred.condIncorrect"/>
+      <stat name="load_instructions" value="system.switch_cpus.commitStats0.numLoadInsts"/>
+      <stat name="store_instructions" value="stats.system.switch_cpus.commitStats0.numStoreInsts"/>
+      <stat name="committed_instructions" value="stats.system.switch_cpus.commitStats0.numInsts"/>
+      <stat name="committed_int_instructions" value="stats.system.switch_cpus.commitStats0.numIntInsts"/>
+      <stat name="committed_fp_instructions" value="system.switch_cpus.commitStats0.numFpInsts"/>
       <stat name="pipeline_duty_cycle" value="1"/>
       <!--<=1, runtime_ipc/peak_ipc; averaged for all cores if homogeneous -->
       <!-- the following cycle stats are used for heterogeneous cores only, 
         please ignore them if homogeneous cores -->
-      <stat name="total_cycles" value="stats.system.cpu.numCycles"/>
-      <stat name="idle_cycles" value="stats.system.cpu.idleCycles"/>
-      <stat name="busy_cycles" value="stats.system.cpu.numCycles - stats.system.cpu.idleCycles"/>
+      <stat name="total_cycles" value="stats.system.switch_cpus.numCycles"/>
+      <stat name="idle_cycles" value="stats.system.switch_cpus.idleCycles"/>
+      <stat name="busy_cycles" value="stats.system.switch_cpus.numCycles - stats.system.switch_cpus.idleCycles"/>
       <!-- instruction buffer stats -->
       <!-- ROB stats, both RS and Phy based OoOs have ROB
       performance simulator should capture the difference on accesses,
       otherwise, McPAT has to guess based on number of committed instructions. -->
-      <stat name="ROB_reads" value="stats.system.cpu.rob.reads"/>
-      <stat name="ROB_writes" value="stats.system.cpu.rob.writes"/>
+      <stat name="ROB_reads" value="stats.system.switch_cpus.rob.reads"/>
+      <stat name="ROB_writes" value="stats.system.switch_cpus.rob.writes"/>
       <!-- RAT accesses -->
-      <stat name="rename_reads" value="stats.system.cpu.rename.intLookups"/>
+      <stat name="rename_reads" value="stats.system.switch_cpus.rename.intLookups"/>
       <!--lookup in renaming logic -->
-      <stat name="rename_writes" value="int(stats.system.cpu.rename.renamedOperands * stats.system.cpu.rename.intLookups / stats.system.cpu.rename.lookups)"/>
+      <stat name="rename_writes" value="int(stats.system.switch_cpus.rename.renamedOperands * stats.system.switch_cpus.rename.intLookups / stats.system.switch_cpus.rename.lookups)"/>
       <!--update dest regs. renaming logic -->
-      <stat name="fp_rename_reads" value="stats.system.cpu.rename.fpLookups"/>
-      <stat name="fp_rename_writes" value="int(stats.system.cpu.rename.renamedOperands * stats.system.cpu.rename.fpLookups / stats.system.cpu.rename.lookups)"/>
+      <stat name="fp_rename_reads" value="stats.system.switch_cpus.rename.fpLookups"/>
+      <stat name="fp_rename_writes" value="int(stats.system.switch_cpus.rename.renamedOperands * stats.system.switch_cpus.rename.fpLookups / stats.system.switch_cpus.rename.lookups)"/>
       <!-- decode and rename stage use this, should be total ic - nop -->
       <!-- Inst window stats -->
-      <stat name="inst_window_reads" value="stats.system.cpu.intInstQueueReads"/>
-      <stat name="inst_window_writes" value="stats.system.cpu.intInstQueueWrites"/>
-      <stat name="inst_window_wakeup_accesses" value="stats.system.cpu.intInstQueueWakeupAccesses"/>
-      <stat name="fp_inst_window_reads" value="stats.system.cpu.fpInstQueueReads"/>
-      <stat name="fp_inst_window_writes" value="stats.system.cpu.fpInstQueueWrites"/>
-      <stat name="fp_inst_window_wakeup_accesses" value="stats.system.cpu.fpInstQueueWakeupAccesses"/>
+      <stat name="inst_window_reads" value="stats.system.switch_cpus.intInstQueueReads"/>
+      <stat name="inst_window_writes" value="stats.system.switch_cpus.intInstQueueWrites"/>
+      <stat name="inst_window_wakeup_accesses" value="stats.system.switch_cpus.intInstQueueWakeupAccesses"/>
+      <stat name="fp_inst_window_reads" value="stats.system.switch_cpus.fpInstQueueReads"/>
+      <stat name="fp_inst_window_writes" value="stats.system.switch_cpus.fpInstQueueWrites"/>
+      <stat name="fp_inst_window_wakeup_accesses" value="stats.system.switch_cpus.fpInstQueueWakeupAccesses"/>
       <!--  RF accesses -->
-      <stat name="int_regfile_reads" value="stats.system.cpu.executeStats0.numIntRegReads"/>
-      <stat name="float_regfile_reads" value="stats.system.cpu.executeStats0.numFpRegReads"/>
-      <stat name="int_regfile_writes" value="stats.system.cpu.executeStats0.numIntRegWrites"/>
-      <stat name="float_regfile_writes" value="stats.system.cpu.executeStats0.numFpRegWrites"/>
+      <stat name="int_regfile_reads" value="stats.system.switch_cpus.executeStats0.numIntRegReads"/>
+      <stat name="float_regfile_reads" value="stats.system.switch_cpus.executeStats0.numFpRegReads"/>
+      <stat name="int_regfile_writes" value="stats.system.switch_cpus.executeStats0.numIntRegWrites"/>
+      <stat name="float_regfile_writes" value="stats.system.switch_cpus.executeStats0.numFpRegWrites"/>
       <!-- accesses to the working reg -->
-      <stat name="function_calls" value="stats.system.cpu.commit.functionCalls"/>
+      <stat name="function_calls" value="stats.system.switch_cpus.commit.functionCalls"/>
       <stat name="context_switches" value="stats.system.cpu.workload.numSyscalls"/>
       <!-- Number of Windows switches (number of function calls and returns)-->
       <!-- Alu stats by default, the processor has one FPU that includes the divider and 
        multiplier. The fpu accesses should include accesses to multiplier and divider  -->
-      <stat name="ialu_accesses" value="stats.system.cpu.intAluAccesses"/>
-      <stat name="fpu_accesses" value="stats.system.cpu.fpAluAccesses"/>
+      <stat name="ialu_accesses" value="stats.system.switch_cpus.intAluAccesses"/>
+      <stat name="fpu_accesses" value="stats.system.switch_cpus.fpAluAccesses"/>
       <stat name="mul_accesses" value="0"/>
       <stat name="cdb_alu_accesses" value="0"/>
       <stat name="cdb_mul_accesses" value="0"/>
@@ -233,9 +233,9 @@
         -->
       </component>
       <component id="system.core.itlb" name="itlb">
-        <param name="number_entries" value="config.system.cpu.mmu.itb.size"/>
-        <stat name="total_accesses" value="stats.system.cpu.mmu.itb.accesses"/>
-        <stat name="total_misses" value="stats.system.cpu.mmu.itb.misses"/>
+        <param name="number_entries" value="config.system.switch_cpus.mmu.itb.size"/>
+        <stat name="total_accesses" value="stats.system.switch_cpus.mmu.itb.accesses"/>
+        <stat name="total_misses" value="stats.system.switch_cpus.mmu.itb.misses"/>
         <stat name="conflicts" value="0"/>
         <!-- there is no write requests to itlb although writes happen to itlb after miss, 
         which is actually a replacement -->
@@ -243,7 +243,7 @@
       <component id="system.core.icache" name="icache">
         <!-- there is no write requests to itlb although writes happen to it after miss, 
         which is actually a replacement -->
-        <param name="icache_config" value="config.system.cpu.icache.size,config.system.cpu.icache.tags.block_size,config.system.cpu.icache.assoc,1,1,config.system.cpu.icache.response_latency,config.system.cpu.icache.tags.block_size,0"/>
+        <param name="icache_config" value="config.system.cpu.icache.size,config.system.cpu.icache.prefetcher.block_size,config.system.cpu.icache.assoc,1,1,config.system.cpu.icache.response_latency,config.system.cpu.icache.prefetcher.block_size,0"/>
         <!-- the parameters are capacity,block_width, associativity, bank, throughput w.r.t. core clock, latency w.r.t. core clock,output_width, cache policy,  -->
         <!-- cache_policy;//0 no write or write-though with non-write allocate;1 write-back with write-allocate -->
         <param name="buffer_sizes" value="config.system.cpu.icache.mshrs,config.system.cpu.icache.mshrs,config.system.cpu.icache.mshrs,config.system.cpu.icache.mshrs"/>
@@ -253,15 +253,15 @@
         <stat name="conflicts" value="stats.system.cpu.icache.replacements"/>
       </component>
       <component id="system.core.dtlb" name="dtlb">
-        <param name="number_entries" value="config.system.cpu.mmu.dtb.size"/>
+        <param name="number_entries" value="config.system.switch_cpus.mmu.dtb.size"/>
         <!--dual threads-->
-        <stat name="total_accesses" value="stats.system.cpu.mmu.dtb_walker.requestOrigin_Requested::Data"/>
-        <stat name="total_misses" value="stats.system.cpu.mmu.dtb_walker.requestOrigin_Requested::total-stats.system.cpu.mmu.dtb_walker.requestOrigin_Completed::total"/>
+        <stat name="total_accesses" value="stats.system.switch_cpus.mmu.dtb_walker.requestOrigin_Requested::Data"/>
+        <stat name="total_misses" value="stats.system.switch_cpus.mmu.dtb_walker.requestOrigin_Requested::total-stats.system.switch_cpus.mmu.dtb_walker.requestOrigin_Completed::total"/>
         <stat name="conflicts" value="0"/>
       </component>
       <component id="system.core.dcache" name="dcache">
         <!-- all the buffer related are optional -->
-        <param name="dcache_config" value="config.system.cpu.dcache.size,config.system.cpu.dcache.tags.block_size,config.system.cpu.dcache.assoc,1,1,config.system.cpu.dcache.response_latency,config.system.cpu.dcache.tags.block_size,0"/>
+        <param name="dcache_config" value="config.system.cpu.dcache.size,config.system.cpu.dcache.prefetcher.block_size,config.system.cpu.dcache.assoc,1,1,config.system.cpu.dcache.response_latency,config.system.cpu.dcache.prefetcher.block_size,0"/>
         <param name="buffer_sizes" value="config.system.cpu.dcache.mshrs,config.system.cpu.dcache.mshrs,config.system.cpu.dcache.mshrs,config.system.cpu.dcache.mshrs"/>
         <!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->
         <stat name="read_accesses" value="stats.system.cpu.dcache.ReadReq.accesses::total"/>
@@ -276,9 +276,9 @@
         <param name="BTB_config" value="5120,4,2,1, 1,3"/>
         <!--should be 4096 + 1024 -->
         <!-- the parameters are capacity,block_width,associativity,bank, throughput w.r.t. core clock, latency w.r.t. core clock,-->
-        <stat name="read_accesses" value="stats.system.cpu.branchPred.BTBLookups"/>
+        <stat name="read_accesses" value="stats.system.switch_cpus.branchPred.BTBLookups"/>
         <!--See IFU code for guideline -->
-        <stat name="write_accesses" value="stats.system.cpu.commitStats0.committedControl::IsControl"/>
+        <stat name="write_accesses" value="stats.system.switch_cpus.commitStats0.committedControl::IsControl"/>
       </component>
     </component>
     
